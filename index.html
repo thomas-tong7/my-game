@@ -4,28 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Infinite Mathdle</title>
+    <title>Mathdle App</title>
     <style>
         :root { --bg: #121213; --tile-border: #3a3a3c; --correct: #538d4e; --present: #b59f3b; --absent: #3a3a3c; --key-bg: #818384; }
-        body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
+
+        /* The "Read Me" Pop-up Overlay */
+        #instructionsOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 18, 19, 0.95);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; padding: 20px; text-align: center; box-sizing: border-box;
+        }
+        .instruction-card { background: #272729; padding: 30px; border-radius: 15px; max-width: 400px; border: 1px solid #565758; }
+        .start-btn { background: #538d4e; color: white; border: none; padding: 15px 40px; font-size: 20px; font-weight: bold; border-radius: 8px; margin-top: 20px; cursor: pointer; width: 100%; }
+        
+        /* Game UI */
         .header { text-align: center; margin-bottom: 10px; }
         .grid { display: grid; gap: 5px; margin-bottom: 15px; }
         .row { display: grid; gap: 5px; }
-        .tile { width: 11vw; height: 11vw; max-width: 45px; max-height: 45px; border: 2px solid var(--tile-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; border-radius: 4px; transition: 0.3s; }
+        .tile { width: 11vw; height: 11vw; max-width: 45px; max-height: 45px; border: 2px solid var(--tile-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; border-radius: 4px; }
         .keyboard { width: 95%; max-width: 400px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding-bottom: 20px; }
         .key { background: var(--key-bg); color: white; border: none; border-radius: 4px; padding: 15px 0; font-size: 18px; font-weight: bold; }
         .key.wide { grid-column: span 2; background-color: #538d4e; }
+        
         .correct { background-color: var(--correct) !important; border-color: var(--correct); }
         .present { background-color: var(--present) !important; border-color: var(--present); }
         .absent { background-color: var(--absent) !important; border-color: var(--absent); }
-        select { padding: 8px; border-radius: 5px; background: #333; color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
+    <div id="instructionsOverlay">
+        <div class="instruction-card">
+            <h1 style="margin-top:0">🧮 MATHDLE</h1>
+            <p>ทายสมการให้ถูกต้องใน 6 ครั้ง</p>
+            <div style="text-align:left; font-size: 14px; line-height: 1.6;">
+                <p>🟩 <b>สีเขียว:</b> ถูกต้อง ถูกตำแหน่ง</p>
+                <p>🟨 <b>สีเหลือง:</b> มีตัวเลขนี้แต่ผิดตำแหน่ง</p>
+                <p>⬛ <b>สีเทา:</b> ไม่มีตัวเลขนี้ในสมการ</p>
+            </div>
+            <button class="start-btn" onclick="closeInstructions()">START GAME</button>
+        </div>
+    </div>
+
     <div class="header">
-        <h1>MATHDLE</h1>
-        <select id="digitSelect" onchange="startGame()">
+        <h1 style="margin:0; font-size: 24px;">MATHDLE</h1>
+        <select id="digitSelect" onchange="startGame()" style="background:#333; color:white; padding:5px; border-radius:5px; margin-top:5px;">
             <option value="5">5 Digits</option>
             <option value="6">6 Digits</option>
             <option value="7">7 Digits</option>
@@ -57,31 +83,34 @@
     </div>
 
     <script>
+        // ... Game Logic remains the same ...
         let secret = "";
         let currentSize = 8;
         let currentRow = 0;
         let currentGuess = "";
         const maxGuesses = 6;
 
+        function closeInstructions() {
+            document.getElementById('instructionsOverlay').style.display = 'none';
+        }
+
         function generateEquation(length) {
             const ops = ['+', '-', '*', '/'];
             let attempts = 0;
             while (attempts < 500) {
                 let op = ops[Math.floor(Math.random() * ops.length)];
-                let a = Math.floor(Math.random() * 100);
-                let b = Math.floor(Math.random() * 100);
+                let a = Math.floor(Math.random() * 99) + 1;
+                let b = Math.floor(Math.random() * 99) + 1;
                 let res;
-                
                 if (op === '+') res = a + b;
                 if (op === '-') res = a - b;
                 if (op === '*') res = a * b;
-                if (op === '/') { if(b === 0 || a % b !== 0) continue; res = a / b; }
-
+                if (op === '/') { if(a % b !== 0) continue; res = a / b; }
                 let eq = `${a}${op}${b}=${res}`;
                 if (eq.length === length && res >= 0) return eq;
                 attempts++;
             }
-            return length === 5 ? "8+1=9" : "12+13=25"; // Fallbacks
+            return length === 5 ? "8+1=9" : "12+13=25";
         }
 
         function startGame() {
@@ -130,7 +159,6 @@
             let guessArr = currentGuess.split('');
             let statuses = Array(currentSize).fill('absent');
 
-            // Pass 1: Find Corrects
             for (let i = 0; i < currentSize; i++) {
                 if (guessArr[i] === secretArr[i]) {
                     statuses[i] = 'correct';
@@ -138,14 +166,12 @@
                     guessArr[i] = null;
                 }
             }
-            // Pass 2: Find Presents
             for (let i = 0; i < currentSize; i++) {
                 if (guessArr[i] && secretArr.includes(guessArr[i])) {
                     statuses[i] = 'present';
                     secretArr[secretArr.indexOf(guessArr[i])] = null;
                 }
             }
-
             for (let i = 0; i < currentSize; i++) {
                 document.getElementById(`tile-${currentRow}-${i}`).classList.add(statuses[i]);
             }
