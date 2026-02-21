@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Mathdle App</title>
+    <style>
+        :root {
+            --bg: #121213;
+            --tile-border: #3a3a3c;
+            --correct: #538d4e;
+            --present: #b59f3b;
+            --absent: #3a3a3c;
+            --key-bg: #818384;
+        }
+
+        /* This centers everything perfectly in the middle of the screen */
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background-color: var(--bg); color: white; margin: 0; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            height: 100vh; width: 100vw;
+            overflow: hidden; touch-action: manipulation;
+        }
+
+        .header { margin-bottom: 10px; text-align: center; }
+        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
+
+        .controls { margin-bottom: 15px; }
+        select { padding: 8px; border-radius: 8px; background: #272729; color: white; border: 1px solid #565758; font-size: 14px; }
+
+        .grid { display: grid; gap: 6px; margin-bottom: 20px; }
+        .row { display: grid; gap: 6px; }
+        .tile { 
+            width: 12vw; height: 12vw; max-width: 50px; max-height: 50px;
+            border: 2px solid var(--tile-border); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.5rem; font-weight: bold; border-radius: 4px;
+        }
+
+        .keyboard { 
+            width: 95%; max-width: 400px; 
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+            padding-bottom: 20px; /* Space for the iPhone "home bar" */
+        }
+        
+        .key { 
+            background: var(--key-bg); color: white; border: none; border-radius: 6px;
+            padding: 18px 0; font-size: 20px; font-weight: bold; cursor: pointer;
+            transition: opacity 0.1s;
+        }
+        .key:active { opacity: 0.6; }
+        .key.wide { grid-column: span 2; background-color: #538d4e; }
+
+        .correct { background-color: var(--correct) !important; border-color: var(--correct); }
+        .present { background-color: var(--present) !important; border-color: var(--present); }
+        .absent { background-color: var(--absent) !important; border-color: var(--absent); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MATHDLE</h1>
+        <div class="controls">
+            <select id="digitSelect" onchange="startGame()">
+                <option value="5">5 Digits</option>
+                <option value="6">6 Digits</option>
+                <option value="7">7 Digits</option>
+                <option value="8" selected>8 Digits</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <div class="keyboard">
+        <button class="key" onclick="press('1')">1</button>
+        <button class="key" onclick="press('2')">2</button>
+        <button class="key" onclick="press('3')">3</button>
+        <button class="key" onclick="press('+')">+</button>
+        <button class="key" onclick="press('-')">-</button>
+        <button class="key" onclick="press('4')">4</button>
+        <button class="key" onclick="press('5')">5</button>
+        <button class="key" onclick="press('6')">6</button>
+        <button class="key" onclick="press('*')">×</button>
+        <button class="key" onclick="press('/')">÷</button>
+        <button class="key" onclick="press('7')">7</button>
+        <button class="key" onclick="press('8')">8</button>
+        <button class="key" onclick="press('9')">9</button>
+        <button class="key" onclick="press('0')">0</button>
+        <button class="key" onclick="press('=')">=</button>
+        <button class="key" style="background:#444" onclick="press('DEL')">⌫</button>
+        <button class="key wide" onclick="submitGuess()">ENTER</button>
+        <button class="key" style="background:#444" onclick="startGame()">↻</button>
+    </div>
+
+    <script>
+        let secret = "";
+        let currentSize = 8;
+        let currentRow = 0;
+        let currentGuess = "";
+        const maxGuesses = 6;
+
+        const puzzles = { 5: "4+1=5", 6: "12-4=8", 7: "10+5=15", 8: "12+13=25" };
+
+        function startGame() {
+            currentSize = parseInt(document.getElementById('digitSelect').value);
+            secret = puzzles[currentSize];
+            currentRow = 0;
+            currentGuess = "";
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+            for (let i = 0; i < maxGuesses; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.style.gridTemplateColumns = `repeat(${currentSize}, 1fr)`;
+                for (let j = 0; j < currentSize; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = `tile-${i}-${j}`;
+                    row.appendChild(tile);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function press(char) {
+            if (char === 'DEL') {
+                currentGuess = currentGuess.slice(0, -1);
+            } else if (currentGuess.length < currentSize) {
+                currentGuess += char;
+            }
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            for (let j = 0; j < currentSize; j++) {
+                const tile = document.getElementById(`tile-${currentRow}-${j}`);
+                tile.innerText = currentGuess[j] || "";
+            }
+        }
+
+        function submitGuess() {
+            if (currentGuess.length !== currentSize) return;
+            try {
+                const parts = currentGuess.split('=');
+                if (parts.length !== 2 || eval(parts[0].replace('×','*').replace('÷','/')) !== parseInt(parts[1])) {
+                    alert("Invalid Math!"); return;
+                }
+            } catch(e) { alert("Invalid Equation!"); return; }
+
+            for (let i = 0; i < currentSize; i++) {
+                const tile = document.getElementById(`tile-${currentRow}-${i}`);
+                if (currentGuess[i] === secret[i]) tile.classList.add('correct');
+                else if (secret.includes(currentGuess[i])) tile.classList.add('present');
+                else tile.classList.add('absent');
+            }
+
+            if (currentGuess === secret) alert("Genius!");
+            else {
+                currentRow++;
+                currentGuess = "";
+                if (currentRow >= maxGuesses) alert("The answer was: " + secret);
+            }
+        }
+        startGame();
+    </script>
+</body>
+</html>
