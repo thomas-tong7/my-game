@@ -5,59 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Mathdle App</title>
+    <title>Mathdle Pro</title>
     <style>
         :root { --bg: #121213; --tile-border: #3a3a3c; --correct: #538d4e; --present: #b59f3b; --absent: #3a3a3c; --key-bg: #818384; }
         
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
 
-        /* The "Welcome" Screen Overlay */
-        #instructionsOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(18, 18, 19, 0.98);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto;
-        }
+        /* Welcome Overlay */
+        #instructionsOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 19, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; box-sizing: border-box; }
         .instruction-card { background: #272729; padding: 25px; border-radius: 20px; max-width: 350px; border: 1px solid #565758; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .start-btn { background: #538d4e; color: white; border: none; padding: 15px 40px; font-size: 20px; font-weight: bold; border-radius: 12px; margin-top: 20px; cursor: pointer; width: 100%; }
         
-        .setup-guide { text-align: left; font-size: 13px; line-height: 1.5; background: #1c1c1e; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #444; }
-        .setup-guide b { color: #538d4e; }
-
         /* Game UI */
         .header { text-align: center; margin-bottom: 10px; }
         .grid { display: grid; gap: 5px; margin-bottom: 15px; }
         .row { display: grid; gap: 5px; }
         .tile { width: 11vw; height: 11vw; max-width: 45px; max-height: 45px; border: 2px solid var(--tile-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; border-radius: 4px; }
+        
+        /* Keyboard */
         .keyboard { width: 95%; max-width: 400px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding-bottom: 20px; }
-        .key { background: var(--key-bg); color: white; border: none; border-radius: 4px; padding: 15px 0; font-size: 18px; font-weight: bold; }
+        .key { background: var(--key-bg); color: white; border: none; border-radius: 4px; padding: 15px 0; font-size: 18px; font-weight: bold; transition: background-color 0.3s; }
         .key.wide { grid-column: span 2; background-color: #538d4e; }
         
+        /* Status Colors */
         .correct { background-color: var(--correct) !important; border-color: var(--correct); }
         .present { background-color: var(--present) !important; border-color: var(--present); }
-        .absent { background-color: var(--absent) !important; border-color: var(--absent); }
+        .absent { background-color: var(--absent) !important; border-color: var(--absent); opacity: 0.5; }
     </style>
 </head>
 <body>
 
     <div id="instructionsOverlay">
         <div class="instruction-card">
-            <h1 style="margin-top:0; text-align: center;">🧮 MATHDLE</h1>
+            <h1 style="margin-top:0; text-align: center;">🧮 MATHDLE PRO</h1>
             <p style="text-align: center;">ทายสมการให้ถูกต้องใน 6 ครั้ง</p>
-            
-            <div style="text-align:left; font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
-                <p>🟩 <b>สีเขียว:</b> ถูกต้อง ถูกตำแหน่ง</p>
-                <p>🟨 <b>สีเหลือง:</b> มีตัวเลขนี้แต่ผิดตำแหน่ง</p>
-                <p>⬛ <b>สีเทา:</b> ไม่มีตัวเลขนี้ในสมการ</p>
+            <div style="font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
+                <p>🟩 <b>เขียว:</b> ถูกตำแหน่ง<br>🟨 <b>เหลือง:</b> ผิดตำแหน่ง<br>⬛ <b>เทา:</b> ไม่มีในสมการ</p>
+                <p style="background:#1c1c1e; padding:10px; border-radius:8px; font-size:12px;">💡 ปุ่มตัวเลขด้านล่างจะเปลี่ยนสีเพื่อช่วยคุณวางแผน!</p>
             </div>
-
-            <div class="setup-guide">
-                <p style="margin-top:0"><b>📲 วิธีติดตั้งเป็นแอป (แนะนำ):</b></p>
-                <p>1. เปิดลิงก์นี้ใน <b>Safari</b> (iPhone) หรือ <b>Chrome</b> (Android)</p>
-                <p>2. กดปุ่ม <b>Share</b> (ส่งออก) หรือ <b>จุด 3 จุด</b></p>
-                <p>3. เลือก <b>"Add to Home Screen"</b> (เพิ่มไปยังหน้าจอโฮม)</p>
-            </div>
-
             <button class="start-btn" onclick="closeInstructions()">START GAME</button>
         </div>
     </div>
@@ -74,45 +59,49 @@
 
     <div id="grid" class="grid"></div>
 
-    <div class="keyboard">
-        <button class="key" onclick="press('1')">1</button>
-        <button class="key" onclick="press('2')">2</button>
-        <button class="key" onclick="press('3')">3</button>
-        <button class="key" onclick="press('+')">+</button>
-        <button class="key" onclick="press('-')">-</button>
-        <button class="key" onclick="press('4')">4</button>
-        <button class="key" onclick="press('5')">5</button>
-        <button class="key" onclick="press('6')">6</button>
-        <button class="key" onclick="press('*')">*</button>
-        <button class="key" onclick="press('/')">/</button>
-        <button class="key" onclick="press('7')">7</button>
-        <button class="key" onclick="press('8')">8</button>
-        <button class="key" onclick="press('9')">9</button>
-        <button class="key" onclick="press('0')">0</button>
-        <button class="key" onclick="press('=')">=</button>
-        <button class="key" style="background:#444" onclick="press('DEL')">⌫</button>
-        <button class="key wide" onclick="submitGuess()">ENTER</button>
-        <button class="key" style="background:#444" onclick="startGame()">↻</button>
-    </div>
+    <div class="keyboard" id="keyboard">
+        </div>
 
     <script>
         let secret = "";
         let currentSize = 8;
         let currentRow = 0;
         let currentGuess = "";
+        let keyStatus = {}; // Stores the color status of each key
         const maxGuesses = 6;
 
-        function closeInstructions() {
-            document.getElementById('instructionsOverlay').style.display = 'none';
+        function closeInstructions() { document.getElementById('instructionsOverlay').style.display = 'none'; }
+
+        // Setup the Keyboard buttons
+        function createKeyboard() {
+            const keys = ['1','2','3','+','-','4','5','6','*','/','7','8','9','0','=','DEL','ENTER','RESET'];
+            const kbContainer = document.getElementById('keyboard');
+            kbContainer.innerHTML = "";
+            keyStatus = {}; // Reset status
+
+            keys.forEach(key => {
+                const btn = document.createElement('button');
+                btn.innerText = key === 'DEL' ? '⌫' : (key === 'RESET' ? '↻' : (key === 'ENTER' ? 'ENTER' : key));
+                btn.className = 'key';
+                if (key === 'ENTER') btn.className += ' wide';
+                btn.id = `key-${key}`;
+                
+                if (key === 'DEL') btn.onclick = () => press('DEL');
+                else if (key === 'ENTER') btn.onclick = () => submitGuess();
+                else if (key === 'RESET') btn.onclick = () => startGame();
+                else btn.onclick = () => press(key);
+                
+                kbContainer.appendChild(btn);
+            });
         }
 
         function generateEquation(length) {
             const ops = ['+', '-', '*', '/'];
             let attempts = 0;
-            while (attempts < 500) {
+            while (attempts < 800) {
                 let op = ops[Math.floor(Math.random() * ops.length)];
-                let a = Math.floor(Math.random() * 99) + 1;
-                let b = Math.floor(Math.random() * 99) + 1;
+                let a = Math.floor(Math.random() * 98) + 1;
+                let b = Math.floor(Math.random() * 98) + 1;
                 let res;
                 if (op === '+') res = a + b;
                 if (op === '-') res = a - b;
@@ -130,6 +119,8 @@
             secret = generateEquation(currentSize);
             currentRow = 0;
             currentGuess = "";
+            createKeyboard(); // Rebuild keyboard to reset colors
+            
             const grid = document.getElementById('grid');
             grid.innerHTML = "";
             for (let i = 0; i < maxGuesses; i++) {
@@ -154,9 +145,21 @@
 
         function updateVisuals() {
             for (let j = 0; j < currentSize; j++) {
-                const tile = document.getElementById(`tile-${currentRow}-${j}`);
-                tile.innerText = currentGuess[j] || "";
+                document.getElementById(`tile-${currentRow}-${j}`).innerText = currentGuess[j] || "";
             }
+        }
+
+        function updateKeyStatus(char, status) {
+            const keyBtn = document.getElementById(`key-${char}`);
+            if (!keyBtn) return;
+            
+            // Priority: Correct > Present > Absent
+            if (keyStatus[char] === 'correct') return; 
+            if (keyStatus[char] === 'present' && status === 'absent') return;
+
+            keyStatus[char] = status;
+            keyBtn.classList.remove('correct', 'present', 'absent');
+            keyBtn.classList.add(status);
         }
 
         function submitGuess() {
@@ -172,19 +175,26 @@
             let guessArr = currentGuess.split('');
             let statuses = Array(currentSize).fill('absent');
 
+            // Find Corrects
             for (let i = 0; i < currentSize; i++) {
                 if (guessArr[i] === secretArr[i]) {
                     statuses[i] = 'correct';
+                    updateKeyStatus(guessArr[i], 'correct');
                     secretArr[i] = null;
                     guessArr[i] = null;
                 }
             }
+            // Find Presents
             for (let i = 0; i < currentSize; i++) {
                 if (guessArr[i] && secretArr.includes(guessArr[i])) {
                     statuses[i] = 'present';
+                    updateKeyStatus(guessArr[i], 'present');
                     secretArr[secretArr.indexOf(guessArr[i])] = null;
+                } else if (guessArr[i]) {
+                    updateKeyStatus(guessArr[i], 'absent');
                 }
             }
+
             for (let i = 0; i < currentSize; i++) {
                 document.getElementById(`tile-${currentRow}-${i}`).classList.add(statuses[i]);
             }
@@ -193,7 +203,7 @@
             else {
                 currentRow++;
                 currentGuess = "";
-                if (currentRow >= maxGuesses) alert("The answer was: " + secret);
+                if (currentRow >= maxGuesses) alert("Answer: " + secret);
             }
         }
         startGame();
